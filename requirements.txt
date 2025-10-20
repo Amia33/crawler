@@ -28,7 +28,7 @@ pyOpenSSL==25.3.0
 python-dotenv==1.1.1
 queuelib==1.8.0
 requests==2.32.5
-requests-file==3.0.0
+requests-file==3.0.1
 Scrapy==2.13.3
 service-identity==24.2.0
 setuptools==80.9.0
