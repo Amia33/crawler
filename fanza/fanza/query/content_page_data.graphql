@@ -1,0 +1,108 @@
+fragment AmateurAdditionalContentData on PPVContent {
+  deliveryStartDate
+  duration
+  amateurActress {
+    name
+    age
+    waist
+    bust
+    bustCup
+    height
+    hip
+  }
+  maker {
+    id
+  }
+  label {
+    id
+  }
+  genres {
+    id
+  }
+  makerContentId
+}
+
+fragment AnimeAdditionalContentData on PPVContent {
+  deliveryStartDate
+  duration
+  series {
+    id
+  }
+  maker {
+    id
+  }
+  label {
+    id
+  }
+  genres {
+    id
+  }
+  makerContentId
+}
+
+fragment AvAdditionalContentData on PPVContent {
+  deliveryStartDate
+  makerReleasedAt
+  duration
+  actresses {
+    id
+  }
+  histrions {
+    id
+  }
+  directors {
+    id
+  }
+  series {
+    id
+  }
+  maker {
+    id
+  }
+  label {
+    id
+  }
+  genres {
+    id
+  }
+  contentType
+  makerContentId
+}
+
+fragment ContentData on PPVContent {
+  id
+  floor
+  title
+  isExclusiveDelivery
+  description
+  notices
+  packageImage {
+    largeUrl
+    mediumUrl
+  }
+  sampleImages {
+    number
+    imageUrl
+    largeImageUrl
+  }
+  sample2DMovie {
+    highestMovieUrl
+  }
+  sampleVRMovie {
+    highestMovieUrl
+  }
+  ...AmateurAdditionalContentData @include(if: $isAmateur)
+  ...AnimeAdditionalContentData @include(if: $isAnime)
+  ...AvAdditionalContentData @include(if: $isAv)
+}
+
+query ContentPageData(
+  $id: ID!
+  $isAmateur: Boolean!
+  $isAnime: Boolean!
+  $isAv: Boolean!
+) {
+  ppvContent(id: $id) {
+    ...ContentData
+  }
+}

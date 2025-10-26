@@ -1,0 +1,19 @@
+query SeriesList(
+  $limit: Int!
+  $floor: Floor!
+  $sort: SeriesListSort = NAME_ASC
+  $offset: Int
+) {
+  seriesList(floor: $floor, sort: $sort, limit: $limit, offset: $offset) {
+    items {
+      id
+      name
+      description
+    }
+    pageInfo {
+      offset
+      limit
+      hasNext
+    }
+  }
+}

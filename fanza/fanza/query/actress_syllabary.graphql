@@ -1,0 +1,21 @@
+query ActressesSyllabary(
+  $floor: Floor = AV
+  $sort: ActressesSort = NAME_ASC
+  $limit: Int!
+  $offset: Int
+) {
+  actresses(floor: $floor, limit: $limit, offset: $offset, sort: $sort) {
+    items {
+      id
+      name
+      nameRuby
+      imageUrl
+      contentsCount
+    }
+    pageInfo {
+      offset
+      limit
+      hasNext
+    }
+  }
+}

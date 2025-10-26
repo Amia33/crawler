@@ -1,0 +1,21 @@
+query Label(
+  $limit: Int!
+  $floor: Floor!
+  $sort: LabelsSort = NAME_ASC
+  $offset: Int
+) {
+  labels(limit: $limit, floor: $floor, sort: $sort, offset: $offset) {
+    items {
+      id
+      name
+      imageUrl
+      contentImageUrl
+      description
+    }
+    pageInfo {
+      offset
+      limit
+      hasNext
+    }
+  }
+}

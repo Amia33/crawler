@@ -1,0 +1,8 @@
+query GenreListSyllabary($floor: Floor!) {
+  genres(limit: 500, floor: $floor, sort: NAME_ASC) {
+    items {
+      id
+      name
+    }
+  }
+}

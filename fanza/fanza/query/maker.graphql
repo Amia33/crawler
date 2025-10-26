@@ -1,0 +1,21 @@
+query Maker(
+  $limit: Int!
+  $offset: Int
+  $floor: Floor!
+  $sort: MakersSort = NAME_ASC
+) {
+  makers(limit: $limit, offset: $offset, floor: $floor, sort: $sort) {
+    items {
+      id
+      name
+      imageUrl
+      description
+      isExclusive
+    }
+    pageInfo {
+      offset
+      limit
+      hasNext
+    }
+  }
+}

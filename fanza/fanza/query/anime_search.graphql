@@ -1,0 +1,33 @@
+query AnimeSearch(
+  $limit: Int!
+  $offset: Int
+  $floor: PPVFloor = ANIME
+  $sort: ContentSearchPPVSort = DELIVERY_START_DATE
+  $queryWord: String
+  $filter: ContentSearchPPVFilterInput
+  $facetLimit: Int = 1
+  $excludeUndelivered: Boolean = true
+) {
+  legacySearchPPV(
+    limit: $limit
+    offset: $offset
+    floor: $floor
+    sort: $sort
+    queryWord: $queryWord
+    filter: $filter
+    facetLimit: $facetLimit
+    includeExplicit: true
+    excludeUndelivered: $excludeUndelivered
+  ) {
+    result {
+      contents {
+        id
+      }
+      pageInfo {
+        offset
+        limit
+        hasNext
+      }
+    }
+  }
+}
