@@ -17,7 +17,7 @@ class SeriesSpider(scrapy.Spider):
         with open(query_path, "r", encoding="utf-8") as f:
             query = f.read()
         url = "https://api.video.dmm.co.jp/graphql"
-        floors = ["ANIME", "AMATEUR", "AV"]
+        floors = ["ANIME", "AV"]
         payload = {
             "query": query,
             "variables": {

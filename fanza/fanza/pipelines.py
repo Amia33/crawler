@@ -18,7 +18,7 @@ class AnimePipeline:
             "exclusive": item["isExclusiveDelivery"],
             "description": item["description"],
             "notice": "",
-            "full_id": None,
+            "full_id": item["makerContentId"],
             "label": None,
             "series": None,
             "genre": [],
@@ -56,8 +56,6 @@ class AnimePipeline:
         if item["genres"]:
             for genre in item["genres"]:
                 fixed["genre"].append(int(genre["id"]))
-        if "makerContentId" in item:
-            fixed["full_id"] = item["makerContentId"]
         if self.mongo_colle.find_one({"_id": fixed["_id"]}):
             spider.logger.info(
                 f"Skipped duplicate item with _id={fixed["_id"]}")
@@ -212,7 +210,7 @@ class AmateurPipeline:
             "exclusive": item["isExclusiveDelivery"],
             "description": item["description"],
             "notice": "",
-            "full_id": None,
+            "full_id": item["makerContentId"],
             "genre": [],
             "cover": item["packageImage"]["mediumUrl"],
             "sample": {
@@ -248,8 +246,6 @@ class AmateurPipeline:
         if item["genres"]:
             for genre in item["genres"]:
                 fixed["genre"].append(int(genre["id"]))
-        if "makerContentId" in item:
-            fixed["full_id"] = item["makerContentId"]
         if item["amateurActress"]["age"]:
             fixed["actress"]["age"] = item["amateurActress"]["age"]
         if item["amateurActress"]["waist"]:
@@ -262,6 +258,110 @@ class AmateurPipeline:
             fixed["actress"]["height"] = item["amateurActress"]["height"]
         if item["amateurActress"]["hip"]:
             fixed["actress"]["hip"] = item["amateurActress"]["hip"]
+        if self.mongo_colle.find_one({"_id": fixed["_id"]}):
+            spider.logger.info(
+                f"Skipped duplicate item with _id={fixed["_id"]}")
+        else:
+            self.mongo_colle.insert_one(fixed)
+
+    def close_spider(self, spider):
+        self.mongo_cli.close()
+
+
+class AVPipeline:
+    def open_spider(self, spider):
+        self.mongo_cli = MongoClient()
+        self.mongo_db = self.mongo_cli["fanza"]
+        self.mongo_colle = self.mongo_db["av"]
+        self.mongo_histrion = self.mongo_db["histrion"]
+        self.mongo_director = self.mongo_db["director"]
+
+    def process_item(self, item, spider):
+        fixed = {
+            "_id": item["id"],
+            "title": item["title"],
+            "type": "",
+            "stream_date": parser.isoparse(item["deliveryStartDate"]),
+            "release_date": None,
+            "duration": item["duration"],
+            "maker": int(item["maker"]["id"]),
+            "exclusive": item["isExclusiveDelivery"],
+            "description": item["description"],
+            "notice": "",
+            "full_id": item["makerContentId"],
+            "label": None,
+            "series": None,
+            "genre": [],
+            "actress": [],
+            "histrion": [],
+            "director": [],
+            "cover": {
+                "large": None,
+                "medium": item["packageImage"]["mediumUrl"]
+            },
+            "sample": {
+                "image": {
+                    "count": 0,
+                    "url": []
+                },
+                "video": None
+            }
+        }
+        if item["makerReleasedAt"]:
+            item["release_date"] = parser.isoparse(item["makerReleasedAt"])
+        if item["contentType"] == "TWO_DIMENSION":
+            fixed["type"] = "2D"
+        else:
+            fixed["type"] = "VR"
+        if item["notices"]:
+            for notice in item["notices"]:
+                fixed["notice"] += (notice + "\n")
+        if item["packageImage"]["largeUrl"]:
+            fixed["cover"]["large"] = item["packageImage"]["largeUrl"]
+        if item["sampleImages"]:
+            fixed["sample"]["image"]["count"] = item["sampleImages"][-1]["number"]
+            for image in item["sampleImages"]:
+                if image["largeImageUrl"]:
+                    fixed["sample"]["image"]["url"].append(
+                        image["largeImageUrl"])
+                else:
+                    fixed["sample"]["image"]["url"].append(image["imageUrl"])
+        if item["sample2DMovie"]:
+            fixed["sample"]["video"] = item["sample2DMovie"]["highestMovieUrl"]
+        if item["sampleVRMovie"]:
+            fixed["sample"]["video"] = item["sampleVRMovie"]["highestMovieUrl"]
+        if item["series"]:
+            fixed["series"] = int(item["series"]["id"])
+        if item["label"]:
+            fixed["label"] = int(item["label"]["id"])
+        if item["genres"]:
+            for genre in item["genres"]:
+                fixed["genre"].append(int(genre["id"]))
+        if item["actresses"]:
+            for actress in item["actresses"]:
+                fixed["actress"].append(int(actress["id"]))
+        if item["histrions"]:
+            for histrion in item["histrions"]:
+                fixed["histrion"].append(int(histrion["id"]))
+                histrion_item = {
+                    "_id": int(histrion["id"]),
+                    "name": histrion["name"]
+                }
+                if self.mongo_histrion.find_one({"_id": histrion_item["_id"]}):
+                    pass
+                else:
+                    self.mongo_histrion.insert_one(histrion_item)
+        if item["directors"]:
+            for director in item["directors"]:
+                fixed["director"].append(int(director["id"]))
+                director_item = {
+                    "_id": int(director["id"]),
+                    "name": director["name"]
+                }
+                if self.mongo_director.find_one({"_id": director_item["_id"]}):
+                    pass
+                else:
+                    self.mongo_director.insert_one(director_item)
         if self.mongo_colle.find_one({"_id": fixed["_id"]}):
             spider.logger.info(
                 f"Skipped duplicate item with _id={fixed["_id"]}")

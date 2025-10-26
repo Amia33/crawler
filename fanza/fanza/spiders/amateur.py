@@ -637,9 +637,9 @@ class AmateurSpider(scrapy.Spider):
                     "isSaleItemsOnly": False,
                     "makerIds": {
                         "ids": [
-                                {
-                                    "id": ""
-                                }
+                            {
+                                "id": ""
+                            }
                         ],
                         "op": "AND"
                     }

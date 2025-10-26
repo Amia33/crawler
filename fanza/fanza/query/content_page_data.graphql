@@ -49,9 +49,11 @@ fragment AvAdditionalContentData on PPVContent {
   }
   histrions {
     id
+    name
   }
   directors {
     id
+    name
   }
   series {
     id
