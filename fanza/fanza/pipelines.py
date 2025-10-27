@@ -205,8 +205,8 @@ class AmateurPipeline:
             "title": item["title"],
             "date": parser.isoparse(item["deliveryStartDate"]),
             "duration": item["duration"],
-            "maker": int(item["maker"]["id"]),
             "label": int(item["label"]["id"]),
+            "maker": None,
             "exclusive": item["isExclusiveDelivery"],
             "description": item["description"],
             "notice": "",
@@ -230,6 +230,8 @@ class AmateurPipeline:
                 "hip": None
             }
         }
+        if item["maker"]:
+            fixed["maker"] = int(item["maker"]["id"])
         if item["notices"]:
             for notice in item["notices"]:
                 fixed["notice"] += (notice + "\n")
