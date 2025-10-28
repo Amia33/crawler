@@ -57,7 +57,7 @@ class AnimePipeline:
             for genre in item["genres"]:
                 fixed["genre"].append(int(genre["id"]))
         if self.mongo_colle.find_one({"_id": fixed["_id"]}):
-            spider.logger.info(
+            spider.logger.warning(
                 f"Skipped duplicate item with _id={fixed["_id"]}")
         else:
             self.mongo_colle.insert_one(fixed)
@@ -79,7 +79,7 @@ class GenrePipeline:
                 "name": genre["name"]
             }
             if self.mongo_colle.find_one({"_id": fixed["_id"]}):
-                spider.logger.info(
+                spider.logger.warning(
                     f"Skipped duplicate item with _id={fixed["_id"]}")
             else:
                 self.mongo_colle.insert_one(fixed)
@@ -108,7 +108,7 @@ class MakerPipeline:
             if maker["description"]:
                 fixed["description"] = maker["description"]
             if self.mongo_colle.find_one({"_id": fixed["_id"]}):
-                spider.logger.info(
+                spider.logger.warning(
                     f"Skipped duplicate item with _id={fixed["_id"]}")
             else:
                 self.mongo_colle.insert_one(fixed)
@@ -131,7 +131,7 @@ class SeriesPipeline:
                 "description": series["description"]
             }
             if self.mongo_colle.find_one({"_id": fixed["_id"]}):
-                spider.logger.info(
+                spider.logger.warning(
                     f"Skipped duplicate item with _id={fixed["_id"]}")
             else:
                 self.mongo_colle.insert_one(fixed)
@@ -159,7 +159,7 @@ class LabelPipeline:
             if label["description"]:
                 fixed["description"] = label["description"]
             if self.mongo_colle.find_one({"_id": fixed["_id"]}):
-                spider.logger.info(
+                spider.logger.warning(
                     f"Skipped duplicate item with _id={fixed["_id"]}")
             else:
                 self.mongo_colle.insert_one(fixed)
@@ -184,7 +184,7 @@ class ActressPipeline:
                 "count": actress["contentsCount"]
             }
             if self.mongo_colle.find_one({"_id": fixed["_id"]}):
-                spider.logger.info(
+                spider.logger.warning(
                     f"Skipped duplicate item with _id={fixed["_id"]}")
             else:
                 self.mongo_colle.insert_one(fixed)
@@ -261,7 +261,7 @@ class AmateurPipeline:
         if item["amateurActress"]["hip"]:
             fixed["actress"]["hip"] = item["amateurActress"]["hip"]
         if self.mongo_colle.find_one({"_id": fixed["_id"]}):
-            spider.logger.info(
+            spider.logger.warning(
                 f"Skipped duplicate item with _id={fixed["_id"]}")
         else:
             self.mongo_colle.insert_one(fixed)
@@ -365,7 +365,7 @@ class AVPipeline:
                 else:
                     self.mongo_director.insert_one(director_item)
         if self.mongo_colle.find_one({"_id": fixed["_id"]}):
-            spider.logger.info(
+            spider.logger.warning(
                 f"Skipped duplicate item with _id={fixed["_id"]}")
         else:
             self.mongo_colle.insert_one(fixed)
