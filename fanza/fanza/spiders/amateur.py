@@ -631,26 +631,25 @@ class AmateurSpider(scrapy.Spider):
             "46126"
         ]
         url = "https://api.video.dmm.co.jp/graphql"
-        payload = {
-            "query": query,
-            "variables": {
-                "filter": {
-                    "isSaleItemsOnly": False,
-                    "labelIds": {
-                        "ids": [
-                            {
-                                "id": ""
-                            }
-                        ],
-                        "op": "AND"
-                    }
-                },
-                "limit": 120,
-                "offset": 0
-            }
-        }
         for label in labels:
-            payload["variables"]["filter"]["labelIds"]["ids"][0]["id"] = label
+            payload = {
+                "query": query,
+                "variables": {
+                    "filter": {
+                        "isSaleItemsOnly": False,
+                        "labelIds": {
+                            "ids": [
+                                {
+                                    "id": label
+                                }
+                            ],
+                            "op": "AND"
+                        }
+                    },
+                    "limit": 120,
+                    "offset": 0
+                }
+            }
             yield scrapy.Request(
                 url=url,
                 method="POST",
@@ -666,17 +665,16 @@ class AmateurSpider(scrapy.Spider):
             __file__), '..', 'query', 'content_page_data.graphql')
         with open(item_query_path, "r", encoding="utf-8") as f:
             item_query = f.read()
-        item_payload = {
-            "query": item_query,
-            "variables": {
-                "id": "",
-                "isAmateur": True,
-                "isAnime": False,
-                "isAv": False
-            }
-        }
         for content in result["contents"]:
-            item_payload["variables"]["id"] = content["id"]
+            item_payload = {
+                "query": item_query,
+                "variables": {
+                    "id": content["id"],
+                    "isAmateur": True,
+                    "isAnime": False,
+                    "isAv": False
+                }
+            }
             yield scrapy.Request(
                 url=response.url,
                 method="POST",

@@ -22,6 +22,7 @@ query AvSearch(
     result {
       contents {
         id
+        deliveryStartAt
       }
       pageInfo {
         offset
