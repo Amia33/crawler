@@ -128,8 +128,10 @@ class SeriesPipeline:
             fixed = {
                 "_id": int(series["id"]),
                 "name": series["name"],
-                "description": series["description"]
+                "description": None
             }
+            if series["description"] != "":
+                fixed["description"] = series["description"]
             if self.mongo_colle.find_one({"_id": fixed["_id"]}):
                 spider.logger.warning(
                     f"Skipped duplicate item with _id={fixed["_id"]}")
@@ -156,7 +158,7 @@ class LabelPipeline:
             }
             if label["imageUrl"]:
                 fixed["image"] = label["imageUrl"]
-            if label["description"]:
+            if label["description"] and label["description"] != "0":
                 fixed["description"] = label["description"]
             if self.mongo_colle.find_one({"_id": fixed["_id"]}):
                 spider.logger.warning(
