@@ -1526,7 +1526,8 @@ class AvSpider(scrapy.Spider):
                 url=response.url,
                 method="POST",
                 body=json.dumps(item_payload),
-                callback=self.parse_item
+                callback=self.parse_item,
+                meta={"maker_id": response.meta["payload"]["variables"]["filter"]["makerIds"]["ids"][0]["id"]}
             )
         if result["pageInfo"]["hasNext"]:
             next_payload = response.meta["payload"]
@@ -1542,4 +1543,5 @@ class AvSpider(scrapy.Spider):
     def parse_item(self, response):
         data = json.loads(response.text)
         item = data["data"]["ppvContent"]
+        item["maker_id"] = response.meta["maker_id"]
         yield item

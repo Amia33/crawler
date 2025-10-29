@@ -288,7 +288,7 @@ class AVPipeline:
             "stream_date": parser.isoparse(item["deliveryStartDate"]),
             "release_date": None,
             "duration": item["duration"],
-            "maker": int(item["maker"]["id"]),
+            "maker": int(item["maker_id"]),
             "exclusive": item["isExclusiveDelivery"],
             "description": item["description"],
             "notice": "",
