@@ -42,17 +42,16 @@ class AnimeSpider(scrapy.Spider):
             __file__), '..', 'query', 'content_page_data.graphql')
         with open(item_query_path, "r", encoding="utf-8") as f:
             item_query = f.read()
-        item_payload = {
-            "query": item_query,
-            "variables": {
-                "id": "",
-                "isAmateur": False,
-                "isAnime": True,
-                "isAv": False
-            }
-        }
         for content in result["contents"]:
-            item_payload["variables"]["id"] = content["id"]
+            item_payload = {
+                "query": item_query,
+                "variables": {
+                    "id": content["id"],
+                    "isAmateur": False,
+                    "isAnime": True,
+                    "isAv": False
+                }
+            }
             yield scrapy.Request(
                 url=response.url,
                 method="POST",
