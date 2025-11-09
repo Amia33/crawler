@@ -18,16 +18,15 @@ class SeriesSpider(scrapy.Spider):
             query = f.read()
         url = "https://api.video.dmm.co.jp/graphql"
         floors = ["ANIME", "AV"]
-        payload = {
-            "query": query,
-            "variables": {
-                "floor": "",
-                "limit": 500,
-                "offset": 0
-            }
-        }
         for floor in floors:
-            payload["variables"]["floor"] = floor
+            payload = {
+                "query": query,
+                "variables": {
+                    "floor": floor,
+                    "limit": 500,
+                    "offset": 0
+                }
+            }
             yield scrapy.Request(
                 url=url,
                 method="POST",

@@ -18,14 +18,13 @@ class GenreSpider(scrapy.Spider):
             query = f.read()
         url = "https://api.video.dmm.co.jp/graphql"
         floors = ["ANIME", "AMATEUR", "AV"]
-        payload = {
-            "query": query,
-            "variables": {
-                "floor": ""
-            }
-        }
         for floor in floors:
-            payload["variables"]["floor"] = floor
+            payload = {
+                "query": query,
+                "variables": {
+                    "floor": floor
+                }
+            }
             yield scrapy.Request(
                 url=url,
                 method="POST",
