@@ -17,7 +17,7 @@ class AnimePipeline:
             "maker": int(item["maker"]["id"]),
             "exclusive": item["isExclusiveDelivery"],
             "description": item["description"],
-            "notice": "",
+            "notice": None,
             "full_id": item["makerContentId"],
             "label": None,
             "series": None,
@@ -35,6 +35,7 @@ class AnimePipeline:
             }
         }
         if item["notices"]:
+            fixed["notice"] = ""
             for notice in item["notices"]:
                 fixed["notice"] += (notice + "\n")
         if item["packageImage"]["largeUrl"]:
@@ -211,7 +212,7 @@ class AmateurPipeline:
             "maker": None,
             "exclusive": item["isExclusiveDelivery"],
             "description": item["description"],
-            "notice": "",
+            "notice": None,
             "full_id": item["makerContentId"],
             "genre": [],
             "cover": item["packageImage"]["mediumUrl"],
@@ -235,6 +236,7 @@ class AmateurPipeline:
         if item["maker"]:
             fixed["maker"] = int(item["maker"]["id"])
         if item["notices"]:
+            fixed["notice"] = ""
             for notice in item["notices"]:
                 fixed["notice"] += (notice + "\n")
         if item["sampleImages"]:
@@ -291,7 +293,7 @@ class AVPipeline:
             "maker": int(item["maker_id"]),
             "exclusive": item["isExclusiveDelivery"],
             "description": item["description"],
-            "notice": "",
+            "notice": None,
             "full_id": item["makerContentId"],
             "label": None,
             "series": None,
@@ -312,12 +314,13 @@ class AVPipeline:
             }
         }
         if item["makerReleasedAt"]:
-            item["release_date"] = parser.isoparse(item["makerReleasedAt"])
+            fixed["release_date"] = parser.isoparse(item["makerReleasedAt"])
         if item["contentType"] == "TWO_DIMENSION":
             fixed["type"] = "2D"
         else:
             fixed["type"] = "VR"
         if item["notices"]:
+            fixed["notice"] = ""
             for notice in item["notices"]:
                 fixed["notice"] += (notice + "\n")
         if item["packageImage"]["largeUrl"]:

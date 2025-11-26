@@ -43,7 +43,7 @@ class AvSpider(scrapy.Spider):
             __file__), '..', 'query', 'content_page_data.graphql')
         with open(item_query_path, "r", encoding="utf-8") as f:
             item_query = f.read()
-        target_date = parser.isoparse("2025-11-10T00:00:00+09:00")
+        target_date = parser.isoparse("2025-11-27T00:00:00+09:00")
         target_not_reached = True
         for content in result["contents"]:
             content_date = parser.isoparse(content["deliveryStartAt"])

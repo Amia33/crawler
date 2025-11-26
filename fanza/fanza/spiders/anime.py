@@ -58,16 +58,16 @@ class AnimeSpider(scrapy.Spider):
                 body=json.dumps(item_payload),
                 callback=self.parse_item
             )
-        # if result["pageInfo"]["hasNext"]:
-        #    next_payload = response.meta["payload"]
-        #    next_payload["variables"]["offset"] += 120
-        #    yield scrapy.Request(
-        #        url=response.url,
-        #        method="POST",
-        #        body=json.dumps(next_payload),
-        #        callback=self.parse,
-        #        meta={"payload": next_payload}
-        #    )
+        if result["pageInfo"]["hasNext"]:
+            next_payload = response.meta["payload"]
+            next_payload["variables"]["offset"] += 120
+            yield scrapy.Request(
+                url=response.url,
+                method="POST",
+                body=json.dumps(next_payload),
+                callback=self.parse,
+                meta={"payload": next_payload}
+            )
 
     def parse_item(self, response):
         data = json.loads(response.text)
