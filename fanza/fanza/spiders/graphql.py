@@ -151,7 +151,7 @@ class GraphqlSpider(scrapy.Spider):
             yield self.create_graphql_request(search_alias, variables, self.parse_content_search)
 
     def parse_content_details(self, response):
-        content_data = response.json().get('data', {}).get('ppvContent')
+        content_data = response.json().get('data', {}).get('graphql')
         if content_data:
             yield {
                 'collection': self.target,
