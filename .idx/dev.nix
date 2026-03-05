@@ -14,6 +14,7 @@
       "google.gemini-cli-vscode-ide-companion"
       "ms-python.python"
       "ms-python.debugpy"
+      "ms-python.autopep8"
     ];
     previews = {
       enable = false;
