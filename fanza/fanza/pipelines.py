@@ -9,7 +9,7 @@ class MongoPipeline:
     def __init__(self, mongo_uri, mongo_db, crawler):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
-        self.crawler = crawler
+        self.crawler = crawler  # Store the crawler instance
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -25,23 +25,24 @@ class MongoPipeline:
             crawler=crawler
         )
 
-    def open_spider(self, spider):
+    def open_spider(self):
+        """This method is called when the spider is opened."""
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
 
-        # Use spider from crawler instance to be future-proof
-        spider_instance = self.crawler.spider
-        self.db[spider_instance.target].create_index('id', unique=True)
-        if spider_instance.target == 'av':
+        spider = self.crawler.spider  # Get spider from the crawler
+        self.db[spider.target].create_index('id', unique=True)
+        if spider.target == 'av':
             self.db['histrion'].create_index('id', unique=True)
             self.db['director'].create_index('id', unique=True)
 
-    def close_spider(self, spider):
+    def close_spider(self):
+        """This method is called when the spider is closed."""
         self.client.close()
 
-    def process_item(self, item, spider):
-        # Use spider from crawler instance to be future-proof
-        spider_instance = self.crawler.spider
+    def process_item(self, item):
+        """This method is called for every item pipeline component."""
+        spider = self.crawler.spider  # Get spider from the crawler
 
         collection_name = item['collection']
         data_to_insert = item['data']
@@ -50,17 +51,17 @@ class MongoPipeline:
 
         try:
             collection.insert_one(data_to_insert)
-            spider_instance.logger.info(
+            spider.logger.info(
                 f"Inserted item with id '{data_to_insert.get('id')}' into '{collection_name}'")
         except pymongo.errors.DuplicateKeyError:
-            spider_instance.logger.warning(
+            spider.logger.warning(
                 f"Item with id '{data_to_insert.get('id')}' already exists in '{collection_name}'")
 
         if collection_name == 'av':
-            self.process_related(
-                data_to_insert, spider_instance, 'histrions', 'histrion')
-            self.process_related(
-                data_to_insert, spider_instance, 'directors', 'director')
+            self.process_related(data_to_insert, spider,
+                                 'histrions', 'histrion')
+            self.process_related(data_to_insert, spider,
+                                 'directors', 'director')
 
         return item
 
