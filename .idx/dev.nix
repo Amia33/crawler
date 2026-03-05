@@ -15,6 +15,8 @@
       "ms-python.python"
       "ms-python.debugpy"
       "ms-python.autopep8"
+      "GraphQL.vscode-graphql"
+      "GraphQL.vscode-graphql-syntax"
     ];
     previews = {
       enable = false;
