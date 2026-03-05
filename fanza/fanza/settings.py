@@ -6,7 +6,7 @@ DOWNLOAD_DELAY = 0.25
 AUTOTHROTTLE_ENABLED = True
 AUTOTHROTTLE_START_DELAY = 1
 AUTOTHROTTLE_TARGET_CONCURRENCY = 4.0
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'WARNING'
 DEFAULT_REQUEST_HEADERS = {
     'Accept': 'application/json, text/plain, */*',
     'Accept-Language': 'en-US,en;q=0.5',
