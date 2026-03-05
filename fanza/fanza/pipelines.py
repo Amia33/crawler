@@ -6,9 +6,10 @@ from scrapy.exceptions import NotConfigured
 
 class MongoPipeline:
 
-    def __init__(self, mongo_uri, mongo_db):
+    def __init__(self, mongo_uri, mongo_db, crawler):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
+        self.crawler = crawler
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -20,15 +21,18 @@ class MongoPipeline:
 
         return cls(
             mongo_uri=mongo_uri,
-            mongo_db=crawler.settings.get('MONGO_DATABASE', 'fanza')
+            mongo_db=crawler.settings.get('MONGO_DATABASE', 'fanza'),
+            crawler=crawler
         )
 
     def open_spider(self, spider):
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
-        # Create indexes for all possible collections
-        self.db[spider.target].create_index('id', unique=True)
-        if spider.target == 'av':
+
+        # Use spider from crawler instance to be future-proof
+        spider_instance = self.crawler.spider
+        self.db[spider_instance.target].create_index('id', unique=True)
+        if spider_instance.target == 'av':
             self.db['histrion'].create_index('id', unique=True)
             self.db['director'].create_index('id', unique=True)
 
@@ -36,7 +40,9 @@ class MongoPipeline:
         self.client.close()
 
     def process_item(self, item, spider):
-        # Unpack the item into its two parts
+        # Use spider from crawler instance to be future-proof
+        spider_instance = self.crawler.spider
+
         collection_name = item['collection']
         data_to_insert = item['data']
 
@@ -44,18 +50,17 @@ class MongoPipeline:
 
         try:
             collection.insert_one(data_to_insert)
-            spider.logger.info(
+            spider_instance.logger.info(
                 f"Inserted item with id '{data_to_insert.get('id')}' into '{collection_name}'")
         except pymongo.errors.DuplicateKeyError:
-            spider.logger.debug(
+            spider_instance.logger.warning(
                 f"Item with id '{data_to_insert.get('id')}' already exists in '{collection_name}'")
 
-        # If the main item was an 'av' item, process its related data
         if collection_name == 'av':
-            self.process_related(data_to_insert, spider,
-                                 'histrions', 'histrion')
-            self.process_related(data_to_insert, spider,
-                                 'directors', 'director')
+            self.process_related(
+                data_to_insert, spider_instance, 'histrions', 'histrion')
+            self.process_related(
+                data_to_insert, spider_instance, 'directors', 'director')
 
         return item
 
@@ -71,5 +76,5 @@ class MongoPipeline:
                 spider.logger.info(
                     f"Inserted related item with id '{related_item.get('id')}' into '{collection_name}'")
             except pymongo.errors.DuplicateKeyError:
-                spider.logger.debug(
+                spider.logger.warning(
                     f"Related item with id '{related_item.get('id')}' already exists in '{collection_name}'")

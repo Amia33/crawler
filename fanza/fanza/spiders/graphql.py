@@ -15,7 +15,8 @@ class GraphqlSpider(scrapy.Spider):
             raise ValueError("A 'target' argument must be provided.")
         self.target = target
 
-    def start_requests(self):
+    async def start(self):
+        """Modern Scrapy entry point using async def."""
         self.load_queries()
         if self.target in ['anime', 'av', 'amateur']:
             yield from self.start_complex_target()
@@ -74,7 +75,6 @@ class GraphqlSpider(scrapy.Spider):
         graphql_data = response.json().get('data', {}).get('graphql', {})
         items = graphql_data.get('items', [])
 
-        # Wrap each item in the consistent structure
         for item in items:
             yield {
                 'collection': self.target,
@@ -143,10 +143,9 @@ class GraphqlSpider(scrapy.Spider):
             search_alias = f'{self.target}_search'
             yield self.create_graphql_request(search_alias, variables, self.parse_content_search)
 
-    def parse_content_details(self, response):
+    def parse_content__details(self, response):
         content_data = response.json().get('data', {}).get('ppvContent')
         if content_data:
-            # Wrap the data in the consistent structure
             yield {
                 'collection': self.target,
                 'data': content_data
