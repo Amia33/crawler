@@ -1,6 +1,7 @@
 import scrapy
 import json
 from pathlib import Path
+import copy
 
 
 class GraphqlSpider(scrapy.Spider):
@@ -84,7 +85,8 @@ class GraphqlSpider(scrapy.Spider):
             }
 
         if graphql_data.get('pageInfo', {}).get('hasNext'):
-            variables = json.loads(response.request.body)['variables']
+            variables = copy.deepcopy(json.loads(
+                response.request.body)['variables'])
             variables['offset'] += 500
             yield self.create_graphql_request(self.target, variables, self.parse_simple_items)
 
@@ -109,7 +111,8 @@ class GraphqlSpider(scrapy.Spider):
             yield self.create_graphql_request(search_alias, search_variables, self.parse_content_search)
 
         if graphql_data.get('pageInfo', {}).get('hasNext'):
-            variables = json.loads(response.request.body)['variables']
+            variables = copy.deepcopy(json.loads(
+                response.request.body)['variables'])
             variables['offset'] += 500
             yield self.create_graphql_request('maker', variables, self.parse_makers)
 
@@ -123,7 +126,8 @@ class GraphqlSpider(scrapy.Spider):
             yield self.create_graphql_request('amateur_search', search_variables, self.parse_content_search)
 
         if graphql_data.get('pageInfo', {}).get('hasNext'):
-            variables = json.loads(response.request.body)['variables']
+            variables = copy.deepcopy(json.loads(
+                response.request.body)['variables'])
             variables['offset'] += 500
             yield self.create_graphql_request('label', variables, self.parse_labels)
 
@@ -140,7 +144,8 @@ class GraphqlSpider(scrapy.Spider):
             yield self.create_graphql_request('content', content_variables, self.parse_content_details)
 
         if search_result.get('pageInfo', {}).get('hasNext'):
-            variables = json.loads(response.request.body)['variables']
+            variables = copy.deepcopy(json.loads(
+                response.request.body)['variables'])
             variables['offset'] += 120
             search_alias = f'{self.target}_search'
             yield self.create_graphql_request(search_alias, variables, self.parse_content_search)
