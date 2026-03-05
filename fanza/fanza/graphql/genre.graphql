@@ -1,0 +1,11 @@
+query GenreListSyllabary($offset: Int, $floor: Floor!) {
+  graphql: genres(limit: 500, offset: $offset, floor: $floor, sort: NAME_ASC) {
+    items {
+      id
+      name
+    }
+    pageInfo {
+      hasNext
+    }
+  }
+}

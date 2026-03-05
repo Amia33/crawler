@@ -1,0 +1,13 @@
+query Label($floor: Floor!, $offset: Int) {
+  graphql: labels(limit: 500, floor: $floor, sort: NAME_ASC, offset: $offset) {
+    items {
+      id
+      name
+      imageUrl
+      description
+    }
+    pageInfo {
+      hasNext
+    }
+  }
+}

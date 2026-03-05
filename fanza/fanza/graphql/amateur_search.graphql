@@ -1,0 +1,19 @@
+query AmateurSearch($offset: Int, $filter: ContentSearchPPVFilterInput) {
+  graphql: legacySearchPPV(
+    limit: 120
+    offset: $offset
+    floor: AMATEUR
+    sort: RELEASE_DATE
+    filter: $filter
+    includeExplicit: true
+  ) {
+    result {
+      contents {
+        id
+      }
+      pageInfo {
+        hasNext
+      }
+    }
+  }
+}

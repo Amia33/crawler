@@ -1,0 +1,17 @@
+query SeriesList($floor: Floor!, $offset: Int) {
+  graphql: seriesList(
+    floor: $floor
+    sort: NAME_ASC
+    limit: 500
+    offset: $offset
+  ) {
+    items {
+      id
+      name
+      description
+    }
+    pageInfo {
+      hasNext
+    }
+  }
+}

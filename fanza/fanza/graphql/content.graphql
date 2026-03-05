@@ -1,0 +1,82 @@
+query ContentPageData(
+  $id: ID!
+  $isAmateur: Boolean!
+  $isAnime: Boolean!
+  $isAv: Boolean!
+) {
+  graphql: ppvContent(id: $id) {
+    id
+    floor
+    title
+    isExclusiveDelivery
+    releaseStatus
+    description
+    notices
+    announcements {
+      body
+    }
+    packageImage {
+      largeUrl
+      mediumUrl
+    }
+    sampleImages {
+      number
+      imageUrl
+      largeImageUrl
+    }
+    sample2DMovie {
+      highestMovieUrl
+    }
+    sampleVRMovie {
+      highestMovieUrl
+    }
+    deliveryStartDate
+    duration
+    maker {
+      id
+    }
+    label {
+      id
+    }
+    genres {
+      id
+    }
+    makerContentId
+    ... on PPVContent @include(if: $isAmateur) {
+      amateurActress {
+        id
+        name
+        imageUrl
+        age
+        waist
+        bust
+        bustCup
+        height
+        hip
+      }
+    }
+    ... on PPVContent @include(if: $isAnime) {
+      series {
+        id
+      }
+    }
+    ... on PPVContent @include(if: $isAv) {
+      makerReleasedAt
+      actresses {
+        id
+      }
+      histrions {
+        id
+        name
+      }
+      directors {
+        id
+        name
+      }
+      series {
+        id
+      }
+      contentType
+    }
+  }
+}

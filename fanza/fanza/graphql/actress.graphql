@@ -1,0 +1,19 @@
+query ActressesSyllabary($floor: Floor!, $offset: Int) {
+  graphql: actresses(
+    floor: $floor
+    sort: NAME_ASC
+    limit: 500
+    offset: $offset
+  ) {
+    items {
+      id
+      name
+      nameRuby
+      imageUrl
+      contentsCount
+    }
+    pageInfo {
+      hasNext
+    }
+  }
+}

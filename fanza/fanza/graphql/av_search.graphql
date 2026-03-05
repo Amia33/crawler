@@ -1,0 +1,19 @@
+query AvSearch($offset: Int, $filter: ContentSearchPPVFilterInput) {
+  graphql: legacySearchPPV(
+    limit: 120
+    offset: $offset
+    floor: AV
+    sort: RELEASE_DATE
+    filter: $filter
+    includeExplicit: true
+  ) {
+    result {
+      contents {
+        id
+      }
+      pageInfo {
+        hasNext
+      }
+    }
+  }
+}
