@@ -19,9 +19,11 @@ class GraphqlSpider(scrapy.Spider):
         """Modern Scrapy entry point using async def."""
         self.load_queries()
         if self.target in ['anime', 'av', 'amateur']:
-            yield from self.start_complex_target()
+            for request in self.start_complex_target():
+                yield request
         else:
-            yield from self.start_simple_target()
+            for request in self.start_simple_target():
+                yield request
 
     # --- Helper Methods ---
 
@@ -143,7 +145,7 @@ class GraphqlSpider(scrapy.Spider):
             search_alias = f'{self.target}_search'
             yield self.create_graphql_request(search_alias, variables, self.parse_content_search)
 
-    def parse_content__details(self, response):
+    def parse_content_details(self, response):
         content_data = response.json().get('data', {}).get('ppvContent')
         if content_data:
             yield {
