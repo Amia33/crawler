@@ -22,7 +22,14 @@
       enable = false;
     };
     workspace = {
-      onCreate = { };
+      onCreate = {
+        create_venv = "python -m venv .venv";
+        activate = "source .venv/bin/activate";
+        install_prep = "pip install -U pip";
+        install_wheel = "pip install wheel";
+        install = "pip install -r requirements.txt";
+        default.openFiles = [ "fanza/fanza/settings.py" ];
+      };
       onStart = { };
     };
   };
