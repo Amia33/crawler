@@ -17,7 +17,6 @@ class GraphqlSpider(scrapy.Spider):
         self.target = target
 
     async def start(self):
-        """Modern Scrapy entry point using async def."""
         self.load_queries()
         if self.target in ['anime', 'av', 'amateur']:
             for request in self.start_complex_target():
@@ -26,17 +25,13 @@ class GraphqlSpider(scrapy.Spider):
             for request in self.start_simple_target():
                 yield request
 
-    # --- Helper Methods ---
-
     def load_queries(self):
-        """Dynamically load GraphQL query files based on the target."""
         self.queries = {}
         required_files = {
             'anime': ['maker', 'anime_search', 'content'],
             'av': ['maker', 'av_search', 'content'],
             'amateur': ['label', 'amateur_search', 'content'],
         }.get(self.target, [self.target])
-
         for file_alias in required_files:
             try:
                 with open(self.graphql_dir / f'{file_alias}.graphql', 'r') as f:
@@ -46,7 +41,6 @@ class GraphqlSpider(scrapy.Spider):
                     f"GraphQL query file not found: {self.graphql_dir / f'{file_alias}.graphql'}")
 
     def create_graphql_request(self, query_alias, variables, callback, meta=None):
-        """Factory method for creating a GraphQL request."""
         return scrapy.Request(
             url=self.start_urls[0],
             method='POST',
@@ -56,8 +50,6 @@ class GraphqlSpider(scrapy.Spider):
             callback=callback,
             meta=meta or {}
         )
-
-    # --- Unified Simple Target Logic ---
 
     def start_simple_target(self):
         target_floors = {
@@ -69,7 +61,6 @@ class GraphqlSpider(scrapy.Spider):
         }
         if self.target not in target_floors:
             raise ValueError(f"Invalid simple target: {self.target}")
-
         for floor in target_floors[self.target]:
             variables = {"floor": floor, "offset": 0}
             yield self.create_graphql_request(self.target, variables, self.parse_simple_items)
@@ -77,20 +68,16 @@ class GraphqlSpider(scrapy.Spider):
     def parse_simple_items(self, response):
         graphql_data = response.json().get('data', {}).get('graphql', {})
         items = graphql_data.get('items', [])
-
         for item in items:
             yield {
                 'collection': self.target,
                 'data': item
             }
-
         if graphql_data.get('pageInfo', {}).get('hasNext'):
             variables = copy.deepcopy(json.loads(
                 response.request.body)['variables'])
             variables['offset'] += 500
             yield self.create_graphql_request(self.target, variables, self.parse_simple_items)
-
-    # --- Complex Target Logic ---
 
     def start_complex_target(self):
         if self.target == 'anime':
@@ -109,7 +96,6 @@ class GraphqlSpider(scrapy.Spider):
             }
             search_alias = f'{self.target}_search'
             yield self.create_graphql_request(search_alias, search_variables, self.parse_content_search)
-
         if graphql_data.get('pageInfo', {}).get('hasNext'):
             variables = copy.deepcopy(json.loads(
                 response.request.body)['variables'])
@@ -124,7 +110,6 @@ class GraphqlSpider(scrapy.Spider):
                 "offset": 0
             }
             yield self.create_graphql_request('amateur_search', search_variables, self.parse_content_search)
-
         if graphql_data.get('pageInfo', {}).get('hasNext'):
             variables = copy.deepcopy(json.loads(
                 response.request.body)['variables'])
@@ -142,7 +127,6 @@ class GraphqlSpider(scrapy.Spider):
                 "isAv": self.target == 'av'
             }
             yield self.create_graphql_request('content', content_variables, self.parse_content_details)
-
         if search_result.get('pageInfo', {}).get('hasNext'):
             variables = copy.deepcopy(json.loads(
                 response.request.body)['variables'])
