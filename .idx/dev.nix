@@ -5,7 +5,6 @@
     pkgs.gnupg
     pkgs.openssh
   ];
-  env = { };
   idx = {
     extensions = [
       "mhutchie.git-graph"
@@ -18,9 +17,6 @@
       "GraphQL.vscode-graphql"
       "GraphQL.vscode-graphql-syntax"
     ];
-    previews = {
-      enable = false;
-    };
     workspace = {
       onCreate = {
         create_venv = "python -m venv .venv";
@@ -30,7 +26,7 @@
         install = "pip install -r requirements.txt";
         default.openFiles = [ "fanza/fanza/settings.py" ];
       };
-      onStart = { };
+      onStart = { default.openFiles = [ "fanza/fanza/settings.py" ]; };
     };
   };
 }
