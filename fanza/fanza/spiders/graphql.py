@@ -15,11 +15,15 @@ class GraphqlSpider(scrapy.Spider):
         if target is None:
             raise ValueError("A 'target' argument must be provided.")
         self.target = target
+        self.latest_items = {}
 
     async def start(self):
         self.load_queries()
         if self.target in ['anime', 'av', 'amateur']:
             for request in self.start_complex_target():
+                yield request
+        elif self.target == 'refresh':
+            for request in self.start_refresh_target():
                 yield request
         else:
             for request in self.start_simple_target():
@@ -31,6 +35,7 @@ class GraphqlSpider(scrapy.Spider):
             'anime': ['maker', 'anime_search', 'content'],
             'av': ['maker', 'av_search', 'content'],
             'amateur': ['label', 'amateur_search', 'content'],
+            'refresh': ['anime_search', 'av_search', 'amateur_search', 'content'],
         }.get(self.target, [self.target])
         for file_alias in required_files:
             try:
@@ -87,6 +92,59 @@ class GraphqlSpider(scrapy.Spider):
         elif self.target == 'amateur':
             yield self.create_graphql_request('label', {"floor": "AMATEUR", "offset": 0}, self.parse_labels)
 
+    def start_refresh_target(self):
+        try:
+            with open(Path(__file__).parent.parent / 'preset_items.json', 'r') as f:
+                self.latest_items = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.latest_items = {}
+        for search_target_base in ['anime', 'av', 'amateur']:
+            search_alias = f'{search_target_base}_search'
+            variables = {"offset": 0}
+            yield self.create_graphql_request(
+                search_alias,
+                variables,
+                self.parse_refresh_search,
+                meta={'search_target_base': search_target_base}
+            )
+
+    def parse_refresh_search(self, response):
+        """Parses the search results for the refresh target."""
+        search_target_base = response.meta['search_target_base']
+        latest_item_id = self.latest_items.get(
+            search_target_base, {}).get('id')
+        search_result = response.json().get(
+            'data', {}).get('graphql', {}).get('result', {})
+        contents = search_result.get('contents', [])
+        for content in contents:
+            if latest_item_id and content['id'] == latest_item_id:
+                self.logger.info(
+                    f"Reached latest item for {search_target_base}, stopping this path.")
+                return
+            content_variables = {
+                "id": content['id'],
+                "isAmateur": search_target_base == 'amateur',
+                "isAnime": search_target_base == 'anime',
+                "isAv": search_target_base == 'av'
+            }
+            yield self.create_graphql_request(
+                'content',
+                content_variables,
+                self.parse_content_details,
+                meta={'collection': search_target_base}
+            )
+        if search_result.get('pageInfo', {}).get('hasNext'):
+            variables = copy.deepcopy(json.loads(
+                response.request.body)['variables'])
+            variables['offset'] += 120
+            search_alias = f'{search_target_base}_search'
+            yield self.create_graphql_request(
+                search_alias,
+                variables,
+                self.parse_refresh_search,
+                meta={'search_target_base': search_target_base}
+            )
+
     def parse_makers(self, response):
         graphql_data = response.json().get('data', {}).get('graphql', {})
         for maker in graphql_data.get('items', []):
@@ -126,7 +184,7 @@ class GraphqlSpider(scrapy.Spider):
                 "isAnime": self.target == 'anime',
                 "isAv": self.target == 'av'
             }
-            yield self.create_graphql_request('content', content_variables, self.parse_content_details)
+            yield self.create_graphql_request('content', content_variables, self.parse_content_details, meta={'collection': self.target})
         if search_result.get('pageInfo', {}).get('hasNext'):
             variables = copy.deepcopy(json.loads(
                 response.request.body)['variables'])
@@ -136,8 +194,9 @@ class GraphqlSpider(scrapy.Spider):
 
     def parse_content_details(self, response):
         content_data = response.json().get('data', {}).get('graphql')
+        collection = response.meta.get('collection') or self.target
         if content_data:
             yield {
-                'collection': self.target,
+                'collection': collection,
                 'data': content_data
             }

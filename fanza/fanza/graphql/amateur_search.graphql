@@ -3,7 +3,7 @@ query AmateurSearch($offset: Int, $filter: ContentSearchPPVFilterInput) {
     limit: 120
     offset: $offset
     floor: AMATEUR
-    sort: RELEASE_DATE
+    sort: DELIVERY_START_DATE
     filter: $filter
     includeExplicit: true
   ) {
